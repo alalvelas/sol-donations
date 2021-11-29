@@ -13,7 +13,7 @@ contract DoNFT is ERC721 {
 
     constructor() ERC721('DoNFT', 'DNFT') {}
 
-    function mintDoNFT(address _recipient) public {
+    function mintDoNFT(address _recipient) internal {
         nftCount.increment();
         uint256 id = nftCount.current();
 
