@@ -5,6 +5,12 @@ coverage
 coverage.json
 typechain
 package-lock.json
+.eslintignore
+.eslintrc.js
+.npmignore
+.prettierignore
+.solhint.json
+.solhintignore
 
 #Hardhat files
 cache

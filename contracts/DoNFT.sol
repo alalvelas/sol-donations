@@ -2,15 +2,22 @@
 
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol";
 
-contract DoNFT is ERC721PresetMinterPauserAutoId, Ownable {
+contract DoNFT is ERC721 {
+    using Counters for Counters.Counter;
 
-    constructor() ERC721PresetMinterPauserAutoId('DoNFT', 'DNFT', 'https://donft/metadata/') {}
+    Counters.Counter nftCount;
 
-    function mintDoNFT(address _recipient) public onlyOwner {
-        mint(_recipient);
+    constructor() ERC721('DoNFT', 'DNFT') {}
+
+    function mintDoNFT(address _recipient) public {
+        nftCount.increment();
+        uint256 id = nftCount.current();
+
+        _safeMint(_recipient, id);
     }
 
 }

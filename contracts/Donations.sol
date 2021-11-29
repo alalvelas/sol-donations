@@ -13,12 +13,9 @@ contract Donations is Ownable, ReentrancyGuard, DoNFT {
     using Counters for Counters.Counter;
 
     struct Campaign {
-        ///  @dev unit is wei
         uint256 donationGoal;
         address payable admin;
-        /// @dev UNIX timestamp
         uint96 deadline;
-        /// @dev denotes if campaign is available to receive funds
         bool active;
         string name;
         string description;
@@ -35,9 +32,10 @@ contract Donations is Ownable, ReentrancyGuard, DoNFT {
     event GoalReached(uint256 _id);
     event DeadlinePassed(uint256 _id);
 
+    /// @dev campaign is active if it's goal is not reached or if deadline has not passed
     modifier campaignActive(uint256 _id) {
         Campaign storage campaign = idToCampaign[_id];
-        require(campaign.active);
+        require(campaign.active, 'Campaign must be active in order to donate');
         _;
     }
 
@@ -75,10 +73,17 @@ contract Donations is Ownable, ReentrancyGuard, DoNFT {
 
     /// @notice Enables campaign admin to withdraw funds
     function withdraw(uint256 _campaignId) public nonReentrant {
-        require(msg.sender == idToCampaign[_campaignId].admin);
+        require(msg.sender == idToCampaign[_campaignId].admin, 'Not allowed');
+        uint256 toWithdraw = campaignIdToAmount[_campaignId];
         campaignIdToAmount[_campaignId] = 0;
-        (bool success, ) = msg.sender.call{value: campaignIdToAmount[_campaignId]}('');
-        require(success);
+        (bool success, ) = msg.sender.call{value: toWithdraw}('');
+        require(success, 'Sending funds failed');
+    }
+
+    function getCampaign(uint256 _id) public view
+    returns(string memory name, uint256 amount, uint256 deadline, uint256 donationGoal) {
+        Campaign storage campaign = idToCampaign[_id];
+        return (campaign.name, campaignIdToAmount[_id], campaign.deadline, campaign.donationGoal);
     }
 
 }
